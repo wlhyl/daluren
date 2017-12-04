@@ -1,0 +1,756 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/number-input/number-input.html">
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../lunar-calendar/lunar-calendar.html">
+
+<dom-module id="daluren-app">
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+	  
+      paper-dropdown-menu, paper-listbox {
+        width: 80px;
+      }
+	  /*
+      paper-dropdown-menu {
+        height: 40px;
+        margin: auto;
+        /*display: inline;*/
+      }
+	  */
+        paper-button.custom {
+            --paper-button-ink-color: var(--paper-pink-a200);
+            /* These could also be individually defined for each of the
+            specific css classes, but we'll just do it once as an example */
+            --paper-button-flat-keyboard-focus: {
+            background-color: var(--paper-pink-a200);
+            color: white !important;
+            };
+            --paper-button-raised-keyboard-focus: {
+            background-color: var(--paper-pink-a200) !important;
+            color: white !important;
+            };
+        }
+        paper-button.indigo {
+            background-color: var(--paper-indigo-500);
+            color: white;
+            --paper-button-raised-keyboard-focus: {
+            background-color: var(--paper-pink-a200) !important;
+            color: white !important;
+        };
+  }
+    </style>
+    <h2>[[prop1]]!</h2>
+	<div style="font-size:10px">此软件为GPL开源软件，使用中如果有问题，请联系作者</div>
+	<div style="font-size:10px">作者：素键，QQ:757781091</div>
+    <div class="vertical layout">
+        <div class="layout horizontal">
+            <div class="vertical layout"  style="width:500px">
+                <div class="layout horizontal justify">
+                    <div style="margin:10px">求测人：{{sexToString}}</div>
+                    <div style="margin:10px">本命：{{benMinGanZhi}}</div>
+                    <div style="margin:10px">行年：{{xinNian}}</div>
+                </div>
+                <!--
+                暂时不支持节气显示
+                <div class="layout horizontal justify">
+                    <div style="margin:10px">节气:{{ jieQi }}</div>
+                </div>
+                -->
+                <div class="layout horizontal justify">
+                    <div style="margin:10px">四柱：{{yearGanZhi}}</div>
+                    <div style="margin:10px">{{monthGanZhi}}</div>
+                    <div style="margin:10px">{{dayGanZhi}}</div>
+                    <div style="margin:10px">{{timeGanZhi}}</div>
+                </div>
+                <div class="layout horizontal justify">
+                    <div style="margin:10px">月将：</div>
+                    <paper-dropdown-menu label="占时" no-label-float>
+                        <paper-listbox slot="dropdown-content" class="dropdown-content attr-for-selected="yue-jiang" selected="{{yueJiang}}" fallback-selection="0">
+                            <paper-item yue-jiang='0'>子</paper-item>
+                            <paper-item yue-jiang='1'>丑</paper-item>
+                            <paper-item yue-jiang='2'>寅</paper-item>
+                            <paper-item yue-jiang='3'>卯</paper-item>
+                            <paper-item yue-jiang='4'>辰</paper-item>
+                            <paper-item yue-jiang='5'>巳</paper-item>
+                            <paper-item yue-jiang='6'>午</paper-item>
+                            <paper-item yue-jiang='7'>未</paper-item>
+                            <paper-item yue-jiang='8'>申</paper-item>
+                            <paper-item yue-jiang='9'>酉</paper-item>
+                            <paper-item yue-jiang='10'>戌</paper-item>
+                            <paper-item yue-jiang='11'>亥</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <div style="margin:10px">
+                    旬首：{{xunShou}}
+                    </div>
+                    <div style="margin:10px">
+                    空亡：{{kongWang}}
+                    </div>
+                </div>
+                <div id="shipan">
+                    <table border="0" cellspacing="10px">
+                        <tr>
+                            <th></th>
+                            <th>[[arrayItem(shipan.LuQing, 0)]]</th>
+                            <th>[[arrayItem(shipan.DunGan, 0)]]</th>
+                            <th>[[arrayItem(shipan.SanChuan, 0)]]</th>
+                            <th>[[arrayItem(shipan.SanChuanTianJiang, 0)]]</th>	
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>[[arrayItem(shipan.LuQing, 1)]]</th>
+                            <th>[[arrayItem(shipan.DunGan, 1)]]</th>
+                            <th>[[arrayItem(shipan.SanChuan, 1)]]</th>
+                            <th>[[arrayItem(shipan.SanChuanTianJiang, 1)]]</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>[[arrayItem(shipan.LuQing, 2)]]</th>
+                            <th>[[arrayItem(shipan.DunGan, 2)]]</th>
+                            <th>[[arrayItem(shipan.SanChuan, 2)]]</th>
+                            <th>[[arrayItem(shipan.SanChuanTianJiang, 2)]]</th>
+                        </tr>
+                        
+                        <tr></tr>
+                        
+                        <tr>
+                            <th></th>
+                            <th>[[arrayItem(shipan.SiKe, 5)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 4)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 2)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 1)]]</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>[[arrayItem(shipan.SiKe, 4)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 3)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 1)]]</th>
+                            <th>[[arrayItem(shipan.SiKe, 0)]]</th>
+                            <th></th>
+                        </tr>
+                        
+                        <tr></tr>
+                        
+                            <tr>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianJiang, 3)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 4)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 5)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 6)]]</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianPan, 3)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 4)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 5)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 6)]]</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th>[[arrayItem(shipan.TianJiang, 2)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 2)]]</th>
+                                <th></th>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianPan, 7)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 7)]]</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th>[[arrayItem(shipan.TianJiang, 1)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 1)]]</th>
+                                <th></th>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianPan, 8)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 8)]]</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianPan, 0)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 11)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 10)]]</th>
+                                <th>[[arrayItem(shipan.TianPan, 9)]]</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th>[[arrayItem(shipan.TianJiang, 0)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 11)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 10)]]</th>
+                                <th>[[arrayItem(shipan.TianJiang, 9)]]</th>
+                                <th></th>
+                            </tr>
+                        </table>
+                </div>
+            </div>
+            <div class="vertical layout">
+                <div>
+                    <div class="layout horizontal  center">
+                        <div>
+                        求测人：
+                        </div>
+                        <label id="sex">性别:</label>
+                        <paper-radio-group selected="{{sex}}" aria-labelledby="sex" >
+                          <paper-radio-button name="male" >男</paper-radio-button>
+                          <paper-radio-button name="female">女</paper-radio-button>
+                        </paper-radio-group>
+                        <div>
+                            出生年份
+                        </div>
+                        <number-input min="1891" step="1" max="2100" pad-length="4" value="{{shenNian}}" ></number-input>
+                        <div class="flex"/>
+                    </div>
+                </div>
+                <div>
+                    <div class="layout horizontal  center">
+                        <div>
+                        要占的事：
+                        </div>
+                        <iron-input bind-value="{{somthing}}">
+                            <input value="{{value::input}}">
+                         </iron-input>
+                         <div class="flex"/>
+                    </div>
+                </div>
+                <div>
+                    <div class="layout horizontal  center">
+                       <div>
+                       起课时间：
+                       </div>
+                       
+                       <number-input class="elInline" min="1891" step="1" max="2100" pad-length="4" value="{{year}}"></number-input>
+                       <div>
+                       年
+                       </div>
+                       
+                       <number-input class="elInline" min="1" step="1" max="12" pad-length="2" value={{month}}></number-input>
+                       <div>
+                       月
+                       </div>
+                       
+                       <number-input class="elInline" min="1" step="1" max="31" pad-length="2" value={{day}}></number-input>
+                       <div>
+                       日
+                       </div>
+                       
+                       <number-input class="elInline" min="0" step="1" max="23" pad-length="2" value={{hour}}></number-input>
+                       <div>
+                       时
+                       </div>
+                       
+                       <number-input class="elInline" min="0" step="0" max="59" pad-length="2" value={{minute}}></number-input>
+                       <div>
+                       分
+                       </div>
+                    </div>   
+                </div>
+                <div>
+                    <div class="layout horizontal  center">
+                        <div>
+                        占时：
+                        </div>
+                        <paper-dropdown-menu label="占时" no-label-float>
+                            <paper-listbox slot="dropdown-content" class="dropdown-content attr-for-selected="zhan-shi" selected="{{zhanShi}}" fallback-selection="0">
+                                <paper-item zhan-shi='0'>子</paper-item>
+                                <paper-item zhan-shi='1'>丑</paper-item>
+                                <paper-item zhan-shi='2'>寅</paper-item>
+                                <paper-item zhan-shi='3'>卯</paper-item>
+                                <paper-item zhan-shi='4'>辰</paper-item>
+                                <paper-item zhan-shi='5'>巳</paper-item>
+                                <paper-item zhan-shi='6'>午</paper-item>
+                                <paper-item zhan-shi='7'>未</paper-item>
+                                <paper-item zhan-shi='8'>申</paper-item>
+                                <paper-item zhan-shi='9'>酉</paper-item>
+                                <paper-item zhan-shi='10'>戌</paper-item>
+                                <paper-item zhan-shi='11'>亥</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <div>贵人起例：</div>
+                        <paper-dropdown-menu label="昼占或夜占" no-label-float>
+                            <paper-listbox slot="dropdown-content" class="dropdown-content attr-for-selected="zhou-zhan" selected="{{zhouZhan}}" fallback-selection="0">
+                                <paper-item zhou-zhan="yes">昼占</paper-item>
+                                <paper-item zhou-zhan="no">夜占</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <div>起本命课：</div>
+                        <paper-dropdown-menu label="本命课" no-label-float>
+                            <paper-listbox  slot="dropdown-content" class="dropdown-content attr-for-selected="ben-minKe" selected="{{benMinKe}}" fallback-selection="0">
+                                <paper-item ben-minKe="no">否</paper-item>
+                                <paper-item ben-minKe="yes">是</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu> 
+                        <div class="flex"/>
+                    
+                    </div>
+                </div>
+                <div class="layout horizontal">
+                    <div class="flex">
+                    </div>
+                    <paper-button raised class="custom indigo" on-click="qiKe">起课</paper-button>
+                    <iron-ajax
+                        id="paiPan"
+                        url="/"
+                        contentType="application/json"
+                        method="put"
+                        handle-as="json"
+                        on-response="handleResponse"
+                    </iron-ajax>
+                </div>  
+            </div>
+		</div>
+        </div>
+        </div>
+        </div>
+        <div class="flex">
+        
+        <template is="dom-if" if="{{isBeMinKe(benMinKe)}}">
+            <table border="0" cellspacing="10px">
+                <tr  align="left">
+                    <th>初限 [[arrayItem(DaYunLiuNian.SanXian,0)]]</th>
+                </tr>
+                <tr  align="left">
+                    <th>中限 [[arrayItem(DaYunLiuNian.SanXian,1)]]</th>
+                </tr>
+                <tr  align="left">
+                    <th>末限 [[arrayItem(DaYunLiuNian.SanXian,2)]]</th>
+                </tr>
+            </table>
+    		<table border="0" valign="top" cellspacing="10px" >
+				<tr>
+					<th>命宫</th>
+					<th>财帛</th>
+					<th>兄弟</th>
+					<th>田宅</th>
+					<th>男女</th>
+					<th>奴仆</th>
+					<th>夫妻</th>
+					<th>疾厄</th>
+					<th>迁移</th>
+					<th>官禄</th>
+					<th>福德</th>
+					<th>相貌</th>
+				</tr>
+				<tr>
+					<template is="dom-repeat" items="{{DaYunLiuNian.ShiErGong}}">
+        				<th>[[item]]</th>
+    				</template>
+				</tr>
+				<tr>
+					<template is="dom-repeat" items="{{DaYunLiuNian.DaYun}}">
+        				<th>[[item]]</th>
+    				</template>
+				</tr>
+				<tr valign="top">
+					<template is="dom-repeat" items="{{DaYunLiuNian.LiuNian}}">
+        				<th>
+								
+							<template is="dom-repeat" items="{{item}}">
+        						<div>[[item]][[liuNianToGanZhi(item)]]</div>
+    						</template>
+							
+                        </th>
+    				</template>
+				</tr>
+			</table>
+            </template>
+        </div>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class DalurenApp extends Polymer.Element {
+      static get is() { return 'daluren-app'; }
+      static get properties() {
+        return {
+            prop1: {
+                type: String,
+                value: '大六壬排盘'
+            },
+            sex:{
+                type: String,
+                value: "male",
+                observer: "sexChange"
+            },
+            year:{
+                type: Number,
+                value: function (){var myDate = new Date();return myDate.getFullYear();}
+            },
+            month:{
+                type: Number,
+                value: function (){var myDate = new Date();return myDate.getMonth()+1;}
+            },
+            day:{
+                type: Number,
+                value: function (){var myDate = new Date();return myDate.getDate();}
+            },
+            hour:{
+                type: Number,
+                value: function (){var myDate = new Date();return myDate.getHours();}
+            },
+            minute:{
+                type: Number,
+                value: function (){var myDate = new Date();return myDate.getMinutes();}
+            },
+            yearGanZhi:{
+                type: String,
+                value: function (){
+                    var lunar=LunarCalendar.solarToLunar(this.year,this.month,this.day);
+                    return lunar.GanZhiYear;
+                }
+            },
+            shenNian:{
+                type: String,
+                value: function (){var myDate = new Date(); return myDate.getFullYear();},
+                observer: "shenNianChange",
+            },
+            somthing:{
+                type: String,
+                value: "要占的事"
+            },
+            zhanShi:{
+                type: Number,
+                value: function(){
+                    var Range = 11 - 0;   
+                    var Rand = Math.random();   
+                    return(0 + Math.round(Rand * Range));
+                },
+            },
+            zhouZhan:{
+                type: Number,
+                value: 0,
+            },
+            benMinKe:{
+                type: Number,
+                value: 0,
+            },
+            /*
+            暂时不支持节气显示
+            jieQi:{
+                type: Number,
+            },
+            */
+            yueJiang:{
+                type: Number,
+                value: function(){
+                    var Range = 11 - 0;   
+                    var Rand = Math.random();   
+                    return(0 + Math.round(Rand * Range));
+                },
+            },
+            xunShou: {
+                type: String,
+            },
+            kongWang: {
+                type: String,
+            },
+        };
+      }
+        ready() {
+            super.ready();
+            var myDate = new Date();    
+		
+            this.getSiZhu();
+
+            //性别显示字符
+            this.sexToString="男";
+            this.getXinNian();
+            //this.getJiQi();     
+        }
+        /*
+        getJiQi(){
+        var lunar=LunarCalendar.solarToLunar(this.year,this.month,this.day);
+        if (lunar.term==undefined){}   
+        }
+        */
+        qiKe() {
+			var zhouZhan="no";
+			if (this.zhouZhan==0){
+				zhouZhan="yes";
+			}
+			this.getSiZhu();
+			var bodyJson={
+			"YueJiang":this.numToDiZhi(this.yueJiang+1),
+			"ZhanShi":this.numToDiZhi(this.zhanShi+1),
+			"ZhanRi":this.dayGanZhi,
+			"ZhouZhan":zhouZhan
+			};
+			this.$.paiPan.body=JSON.stringify(bodyJson)
+            this.$.paiPan.generateRequest();
+        }
+        handleResponse(data){
+            this.shipan=data.detail.response;
+            // 需要已经排出盘，再计算本命大运流年
+            if (this.benMinKe==1){
+                this.getMinPan();
+            }
+        }
+        shenNianChange (){
+            this.benMinGanZhi=LunarCalendar.solarToLunar(this.shenNian,11,25).GanZhiYear;
+            this.getXinNian();
+        }
+		sexChange (e){
+			if (this.sex=="male"){
+			this.sexToString="男";
+			}else{
+			this.sexToString="女";
+			}
+            this.getXinNian();
+	  }
+	  
+		diZhiToNum (d) {
+			var diZhiGroup=new Array("子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥");
+			var num;
+			for(var i=0;i<diZhiGroup.length;i++){
+				if (d==diZhiGroup[i]){
+					num=(i+1+12)%12;
+					break;
+				}
+			}
+			if (num==0){
+				return 12;
+			}else{
+				return num;
+			}
+		}
+		numToDiZhi (n) {
+			var diZhiGroup=new Array("子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥");
+			
+			return diZhiGroup[(n-1)];
+		}
+		tianGanToNum (d) {
+			var tianGanGroup=new Array("甲","乙","丙","丁","戊","己","庚","辛","壬","癸");
+			var num;
+			for(var i=0;i<tianGanGroup.length;i++){
+				if (d==tianGanGroup[i]){
+					num=(i+1+10)%10;
+					break;
+				}
+			}
+			if (num==0){
+				return 10;
+			}else{
+				return num;
+			}
+		}
+		numToTianGan (n) {
+			var diZhiGroup=new Array("甲","乙","丙","丁","戊","己","庚","辛","壬","癸");
+			
+			return diZhiGroup[(n-1)];
+		}
+		getSiZhu(){
+			//计算四柱
+			var lunar=LunarCalendar.solarToLunar(this.year,this.month,this.day);
+			this.yearGanZhi=lunar.GanZhiYear;
+			this.monthGanZhi=lunar.GanZhiMonth;
+			this.dayGanZhi=lunar.GanZhiDay;
+			
+			var timeZhi=this.getTimeToZhi(this.hour);
+			
+			var dayGan=this.dayGanZhi.substring(0,1);
+			//五鼠遁
+			//子时天干
+			var ziTimeGan;
+			if (dayGan=="甲" || dayGan=="己"){
+				ziTimeGan="甲";
+			}
+			if (dayGan=="乙" || dayGan=="庚"){
+				ziTimeGan="丙";
+			}
+			if (dayGan=="丙" || dayGan=="辛"){
+				ziTimeGan="戊";
+			}
+			if (dayGan=="丁" || dayGan=="壬"){
+				ziTimeGan="庚";
+			}
+			if (dayGan=="戊" || dayGan=="癸"){
+				ziTimeGan="壬";
+			}
+			
+			//计算占时天干
+			var n=(this.diZhiToNum(timeZhi) -1 + this.tianGanToNum(ziTimeGan) + 10)%10;
+			if (n==0){
+				n=10;
+			}
+			var timeGan=this.numToTianGan(n);
+			this.timeGanZhi=timeGan+timeZhi;
+            
+            //计算旬首
+            var dayZhi=this.dayGanZhi.substring(1,2);
+            var ganNum=this.tianGanToNum(dayGan);
+            var zhiNum=this.diZhiToNum(dayZhi);
+            var deltaN=(ganNum-1+10)%10; 
+            if (deltaN==0){
+                deltaN=10;
+            }
+            var xunShouNum =(zhiNum-deltaN+12)%12;
+            if (xunShouNum==0){
+                xunShouNum=12;
+            }			
+            this.xunShou="甲"+this.numToDiZhi(xunShouNum);
+            var kongWangNum = new Array;
+            kongWangNum[0] = (xunShouNum + 10+12)%12;
+            kongWangNum[1] = (xunShouNum + 11+12)%12;
+            for (var i=0;i<2;i++){
+                if (kongWangNum[i]==0){
+                    kongWangNum[i]=12;
+                }
+            }
+            this.kongWang=this.numToDiZhi(kongWangNum[0]) + ' ' + this.numToDiZhi(kongWangNum[1]);
+            
+		}
+		getTimeToZhi(t){
+			if(t>=1 && t<3){
+				return "丑";
+			}
+			if(t>=3 && t<5){
+				return "寅";
+			}
+			if(t>=5 && t<7){
+				return "卯";
+			}
+			if(t>=7 && t<9){
+				return "辰";
+			}
+			if(t>=9 && t<11){
+				return "巳";
+			}
+			if(t>=11 && t<13){
+				return "午";
+			}
+			if(t>=13 && t<15){
+				return "未";
+			}
+			if(t>=15 && t<17){
+				return "申";
+			}
+			if(t>=17 && t<19){
+				return "酉";
+			}
+			if(t>=19 && t<21){
+				return "戌";
+			}
+			if(t>=21 && t<23){
+				return "亥";
+			}
+			return "子";
+		}
+        getXinNian(){
+            //本命年支
+            var yearZhi=LunarCalendar.solarToLunar(this.shenNian,11,25).GanZhiYear.substring(1,2);
+     
+            // 寅为3,申为9
+            var n;
+            if(this.sex=="male"){
+                var delta = this.diZhiToNum(this.yearGanZhi.substring(1,2)) - this.diZhiToNum(yearZhi);
+                n=((delta +12 )%12 + 3) %12;
+            }else{
+                var delta = this.diZhiToNum(this.yearGanZhi.substring(1,2)) - this.diZhiToNum(yearZhi);
+                n= ((9 - (delta + 12) % 12) + 12)%12;
+            }
+            if (n==0){
+                n=12;
+            }
+            this.xinNian=this.numToDiZhi(n); 
+        }
+		arrayItem(a, index) {
+	        return a[index];
+     	}
+		getTaiXuanShu(a){
+			if (a=="甲" || a=="己" ||a=="子"|| a=="午"){
+				return 9;
+			}
+			if (a=="乙" || a=="庚" ||a=="丑"|| a=="未"){
+				return 8;
+			}
+			if (a=="丙" || a=="辛" ||a=="寅"|| a=="申"){
+				return 7;
+			}
+			if (a=="丁" || a=="壬" ||a=="卯"|| a=="酉"){
+				return 6;
+			}
+			if (a=="戊" || a=="癸" ||a=="辰"|| a=="戌"){
+				return 5;
+			}
+			if (a=="巳" || a=="亥"){
+				return 4;
+			}
+		}
+		getMinPan(){
+			//var minGong=LunarCalendar.solarToLunar(this.shenNian,11,25).GanZhiYear.substring(1,2);
+			var minGong=this.yearGanZhi.substring(1,2);
+			var minGongNum=this.diZhiToNum(minGong);
+			var shiErGong=new Array();
+			shiErGong[0]=minGong;
+			for(var i=1;i<12;i++){
+				var n=(minGongNum-i +12) % 12
+				if(n==0){
+					n=12;
+				}
+				shiErGong[i]=this.numToDiZhi(n);
+			}
+			var daYun=new Array();
+			daYun[0]=this.getTaiXuanShu(minGong);
+			for (var i=1;i<12;i++){
+				var ts=this.getTaiXuanShu(shiErGong[i]);
+				daYun[i]=daYun[i-1]+ts;				
+			}
+			
+			//流年应从
+			
+			var liuNian=new Array();
+			for (var i=0;i<12;i++){
+				//this.shenNian + totalNian+j -1;
+				var liuN=new Array();
+				//lN[0]=shiErGong[i]
+				for (var j=0;j<daYun[i+1]-daYun[i];j++){
+					liuN[j]=this.year + daYun[i] - 1 + j; // 流年的公元数
+					//this.diZhiToNum(LN[i]);
+				}
+				liuNian[i]=liuN;
+			}
+            //三限
+            var sanXian = new Array;
+
+            for (var i=0;i<3;i++){
+                for (var j=0;j<12;j++){
+                    if(this.shipan.SanChuan[i]==this.shipan.TianPan[j]){
+                        var n=(j+1+2+12)%12; // 天盘是从寅记0，numToDiZhi，从子记0
+                        if (n==0){
+                            n=12;
+                        }
+                        var d = this.numToDiZhi(n);//得到地盘地支
+                        sanXian[i]=this.getTaiXuanShu(this.shipan.SanChuan[i]) * this.getTaiXuanShu(d)/2+this.getTaiXuanShu(d);
+                        break;
+                    }
+                }
+            }
+
+			this.DaYunLiuNian={"SanXian":sanXian,"ShiErGong":shiErGong,"DaYun":daYun,"LiuNian":liuNian};
+		}
+		liuNianToGanZhi(a){
+			return LunarCalendar.solarToLunar(a,11,25).GanZhiYear;
+		}
+        isBeMinKe(a){
+            return a==1;
+        }
+}
+    window.customElements.define(DalurenApp.is, DalurenApp);
+  </script>
+</dom-module>
