@@ -596,9 +596,7 @@
             var ganNum=this.tianGanToNum(dayGan);
             var zhiNum=this.diZhiToNum(dayZhi);
             var deltaN=(ganNum-1+10)%10; 
-            if (deltaN==0){
-                deltaN=10;
-            }
+
             var xunShouNum =(zhiNum-deltaN+12)%12;
             if (xunShouNum==0){
                 xunShouNum=12;
